@@ -1,11 +1,12 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = [
-    path('folder/', folder_list),
-    path('folder/<int:id_folders>/', folder_details),
-    path('item/', item_list),
-    path('item/<int:id_item>/', item_details),
-    path('user/', user_list),
-    path('user/<int:id_user>/', user_details),
+router = DefaultRouter()
+router.register('folder', FolderViewSet, basename='folder')
+router.register('item', ItemViewSet, basename='item')
+router.register('user', UserViewSet)
+
+urlpatterns = [    
+    path('api/', include(router.urls)),
 ]
