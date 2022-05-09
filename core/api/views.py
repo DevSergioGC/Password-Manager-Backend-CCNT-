@@ -1,7 +1,5 @@
-#from django.shortcuts import render, Response
 from .models import *
 from .serializers import *
-#from django.http import Response
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
