@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Folders, Items, User
 
-class FolderSerializer(serializers.Serializer):
+class FolderSerializer(serializers.Serializer):    
     class Meta:
         
         model = Folders
