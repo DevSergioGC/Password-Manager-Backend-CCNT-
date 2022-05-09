@@ -1,11 +1,13 @@
-from django.shortcuts import render, HttpResponse
+#from django.shortcuts import render, Response
 from .models import *
 from .serializers import *
-from django.http import JsonResponse
+#from django.http import Response
 from rest_framework.parsers import JSONParser
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
-@csrf_exempt
+@api_view(['GET', 'POST'])
 def folder_list(request):
     
     #! Get all folders
@@ -15,22 +17,21 @@ def folder_list(request):
         folders = Folders.objects.all()
         serializer = FolderSerializer(folders, many=True)
         
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
     
-    elif request.method == 'POST':
+    elif request.method == 'POST':        
         
-        data = JSONParser().parse(request)
-        serializer = FolderSerializer(data=data)
+        serializer = FolderSerializer(data=request.data)
         
         if serializer.is_valid():
             
             serializer.save()
             
-            return JsonResponse(serializer.data, status=201)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        return JsonResponse(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-@csrf_exempt
+@api_view(['GET', 'PUT', 'DELETE'])
 def folder_details(request, id_folders):
     
     try:
@@ -39,34 +40,33 @@ def folder_details(request, id_folders):
         
     except Folders.DoesNotExist:
         
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         
         serializer = FolderSerializer(folder)
         
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
     
     elif request.method == 'PUT':
-        
-        data = JSONParser().parse(request)
-        serializer = FolderSerializer(folder, data=data)
+                
+        serializer = FolderSerializer(folder, data=request.data)
         
         if serializer.is_valid():
             
             serializer.save()
             
-            return JsonResponse(serializer.data)
+            return Response(serializer.data)
         
-        return JsonResponse(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
         
         folder.delete()
         
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
-@csrf_exempt
+@api_view(['GET', 'POST'])
 def item_list(request):
     
     #! Get all items
@@ -76,22 +76,21 @@ def item_list(request):
         items = Items.objects.all()
         serializer = ItemSerializer(items, many=True)
         
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
     
-    elif request.method == 'POST':
+    elif request.method == 'POST':        
         
-        data = JSONParser().parse(request)
-        serializer = ItemSerializer(data=data)
+        serializer = ItemSerializer(data=request.data)
         
         if serializer.is_valid():
             
             serializer.save()
             
-            return JsonResponse(serializer.data, status=201)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        return JsonResponse(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-@csrf_exempt
+@api_view(['GET', 'PUT', 'DELETE'])
 def item_details(request, id_item):
     
     try:
@@ -100,34 +99,33 @@ def item_details(request, id_item):
         
     except Items.DoesNotExist:
         
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         
         serializer = ItemSerializer(item)
         
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
     
     elif request.method == 'PUT':
-        
-        data = JSONParser().parse(request)
-        serializer = ItemSerializer(item, data=data)
+                
+        serializer = ItemSerializer(item, data=request.data)
         
         if serializer.is_valid():
             
             serializer.save()
             
-            return JsonResponse(serializer.data)
+            return Response(serializer.data)
         
-        return JsonResponse(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
         
         item.delete()
         
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-@csrf_exempt
+@api_view(['GET', 'POST'])
 def user_list(request):
     
     # ! Get all users
@@ -137,22 +135,21 @@ def user_list(request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         
-        return JsonResponse(serializer.data, safe=False)
+        return Response(serializer.data)
     
-    elif request.method == 'POST':
+    elif request.method == 'POST':        
         
-        data = JSONParser().parse(request)
-        serializer = UserSerializer(data=data)
+        serializer = UserSerializer(data=request.data)
         
         if serializer.is_valid():
             
             serializer.save()
             
-            return JsonResponse(serializer.data, status=201)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-        return JsonResponse(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-@csrf_exempt
+@api_view(['GET', 'PUT', 'DELETE'])
 def user_details(request, id_user):
     
     try:
@@ -161,30 +158,29 @@ def user_details(request, id_user):
         
     except User.DoesNotExist:
         
-        return HttpResponse(status=404)
+        return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         
         serializer = UserSerializer(users)
         
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
     
     elif request.method == 'PUT':
-        
-        data = JSONParser().parse(request)
-        serializer = UserSerializer(users, data=data)
+                
+        serializer = UserSerializer(users, data=request.data)
         
         if serializer.is_valid():
             
             serializer.save()
             
-            return JsonResponse(serializer.data)
+            return Response(serializer.data)
         
-        return JsonResponse(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
         
         users.delete()
         
-        return HttpResponse(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
