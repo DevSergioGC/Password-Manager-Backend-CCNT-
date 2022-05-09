@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Folders, Items, User
+from rest_framework.authtoken.views import Token
 
 class FolderSerializer(serializers.ModelSerializer):    
     class Meta:
@@ -32,3 +33,15 @@ class UserSerializer(serializers.ModelSerializer):
             'full_name',
             'master_pwd',            
         ]    
+        
+        extra_kwargs = {'master_pwd': {
+            'write_only': True,
+            'required': True,
+        }}
+        
+    def create(self, validated_data):
+        
+        user = User.objects.create_user(**validated_data)
+        Token.objects.create(user=user)
+        
+        return user
