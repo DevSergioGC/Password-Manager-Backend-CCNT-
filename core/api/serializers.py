@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Folders, Items, User
 
-class FolderSerializer(serializers.Serializer):    
+class FolderSerializer(serializers.ModelSerializer):    
     class Meta:
         
         model = Folders
@@ -10,9 +10,8 @@ class FolderSerializer(serializers.Serializer):
             'name',
         ]
             
-class ItemSerializer(serializers.Serializer):
-    class Meta:
-        
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:        
         model = Items
         fields = [
             'id_item',
@@ -24,9 +23,8 @@ class ItemSerializer(serializers.Serializer):
             'id_user',
         ]
                
-class UserSerializer(serializers.Serializer):
-    class Meta:
-        
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:        
         model = User
         fields = [
             'id_user',
