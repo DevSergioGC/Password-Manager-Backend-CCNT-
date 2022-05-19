@@ -12,11 +12,7 @@ class User(models.Model):
 class Folders(models.Model):
     
     id_folders = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, null=False, blank=False)
-    
-    def __str__(self):
-        
-        return self.username
+    name = models.CharField(max_length=50, null=False, blank=False)   
     
     def __str__(self):
         

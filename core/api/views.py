@@ -9,14 +9,14 @@ class FolderViewSet(viewsets.ModelViewSet):
     queryset = Folders.objects.all()
     serializer_class = FolderSerializer
     permission_classes = [IsAuthenticated]
-    authentication_classes = (TokenAuthentication)
+    authentication_classes = (TokenAuthentication,)
     
 class ItemViewSet(viewsets.ModelViewSet):
     
     queryset = Items.objects.all()
     serializer_class = ItemSerializer
     permission_classes = [IsAuthenticated]
-    authentication_classes = (TokenAuthentication)
+    authentication_classes = (TokenAuthentication,)
     
 class UserViewSet(viewsets.ModelViewSet):
     
