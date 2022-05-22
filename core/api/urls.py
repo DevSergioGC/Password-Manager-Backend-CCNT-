@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register('folder', FolderViewSet, basename='folder')
 router.register('item', ItemViewSet, basename='item')
-router.register('user', UserViewSet)
+router.register('user', UserViewSet, basename='user')
 
 urlpatterns = [    
     path('api/', include(router.urls)),

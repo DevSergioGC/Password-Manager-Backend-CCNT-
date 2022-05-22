@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
         
         extra_kwargs = {'master_pwd': {
             'write_only': True,
-            'required': True,
+            'required': True
         }}
         
     def create(self, validated_data):
