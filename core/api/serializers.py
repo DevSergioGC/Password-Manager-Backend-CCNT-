@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from .models import Folders, Items
+from .models import Folders, Items, User
 from rest_framework.authtoken.views import Token
-from django.contrib.auth.models import User
 
 class FolderSerializer(serializers.ModelSerializer):    
     class Meta:
@@ -32,10 +31,10 @@ class UserSerializer(serializers.ModelSerializer):
             'id_user',
             'username',
             'name',
-            'master_pwd',            
+            'password',            
         ]    
         
-        extra_kwargs = {'master_pwd': {
+        extra_kwargs = {'password': {
             'write_only': True,
             'required': True
         }}
