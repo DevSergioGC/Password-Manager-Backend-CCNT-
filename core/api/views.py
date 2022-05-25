@@ -21,6 +21,4 @@ class ItemViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = (TokenAuthentication,)
+    serializer_class = UserSerializer    
