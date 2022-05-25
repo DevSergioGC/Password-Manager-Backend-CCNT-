@@ -1,4 +1,5 @@
 from .models import *
+from django.contrib.auth.models import User
 from .serializers import *
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication

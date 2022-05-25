@@ -1,22 +1,16 @@
 from django.db import models
-class User(models.Model):
-    
-    id_user = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=50, null=False, blank=False)
-    full_name = models.CharField(max_length=100, null=False, blank=False)
-    master_pwd = models.CharField(max_length=255, null=False, blank=False)
-    
-    def __str__(self):
-        
-        return self.username
+from django.contrib.auth.models import User
+
 class Folders(models.Model):
     
     id_folders = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, null=False, blank=False)   
+    name = models.CharField(max_length=50, null=False, blank=False)  
+    id_user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     
     def __str__(self):
         
         return self.name
+    
 class Items(models.Model):
     
     id_item = models.AutoField(primary_key=True)
@@ -25,7 +19,7 @@ class Items(models.Model):
     description = models.CharField(max_length=300)
     url = models.CharField(max_length=255)
     
-    id_folders = models.ForeignKey(Folders, null=False, blank=False, on_delete=models.DO_NOTHING)
+    id_folders = models.ForeignKey(Folders, null=True, blank=True, on_delete=models.DO_NOTHING)
     id_user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     
     def __str__(self):
