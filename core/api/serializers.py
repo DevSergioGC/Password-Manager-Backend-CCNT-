@@ -29,13 +29,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:        
         model = User
         fields = [
-            'id',
+            'id_user',
             'username',
-            'first_name',
-            'password',            
+            'name',
+            'master_pwd',            
         ]    
         
-        extra_kwargs = {'password': {
+        extra_kwargs = {'master_pwd': {
             'write_only': True,
             'required': True
         }}

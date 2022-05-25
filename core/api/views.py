@@ -1,5 +1,4 @@
 from .models import *
-from django.contrib.auth.models import User
 from .serializers import *
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -21,5 +20,5 @@ class ItemViewSet(viewsets.ModelViewSet):
     
 class UserViewSet(viewsets.ModelViewSet):
     
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer    
