@@ -5,7 +5,7 @@ class Folders(models.Model):
     
     id_folders = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50, null=False, blank=False)  
-    id_user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     
     def __str__(self):
         
@@ -20,7 +20,7 @@ class Items(models.Model):
     url = models.CharField(max_length=255)
     
     id_folders = models.ForeignKey(Folders, null=True, blank=True, on_delete=models.DO_NOTHING)
-    id_user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     
     def __str__(self):
         
