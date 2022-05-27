@@ -21,8 +21,8 @@ class ItemSerializer(serializers.ModelSerializer):
             'password',
             'description',
             'url',
-            'id_folders',
-            'id_user',
+            'folder',
+            'user',
         ]
                
 class UserSerializer(serializers.ModelSerializer):

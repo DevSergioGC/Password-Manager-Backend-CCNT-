@@ -19,7 +19,7 @@ class Items(models.Model):
     description = models.CharField(max_length=300)
     url = models.CharField(max_length=255)
     
-    id_folders = models.ForeignKey(Folders, null=True, blank=True, on_delete=models.DO_NOTHING)
+    folder = models.ForeignKey(Folders, null=True, blank=True, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE)
     
     def __str__(self):
