@@ -8,11 +8,20 @@ class FolderSerializer(serializers.ModelSerializer):
         
         model = Folders
         fields = "__all__"
+        
+        extra_kwargs = {'user': {            
+            'required': False
+        }}
             
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:        
         model = Items
         fields = "__all__"
+        
+        extra_kwargs = {
+            'user': {'required': False},
+            'folder': {'required': False}
+        }
                
 class UserSerializer(serializers.ModelSerializer):
     class Meta:        
