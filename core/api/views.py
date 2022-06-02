@@ -5,14 +5,8 @@ from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import Token
-from cryptography.fernet import Fernet
 import cryptocode
 from rest_framework.response import Response
-import os
-    
-file = open('key.key', 'rb')
-new_key = file.read()
-file.close()
 
 class FolderViewSet(viewsets.ModelViewSet):
     
@@ -61,23 +55,14 @@ class ItemViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         
         queryset = self.queryset               
-        query_set = queryset.filter(user=self.request.user, folder=self.request.query_params.get('folder'))        
-              
-        #? Ciclo para desencriptar las contrasenas de los items 
-        #! Aun no funciona 
+        query_set = (queryset.filter(user=self.request.user, folder=self.request.query_params.get('folder'))).values()   
+        new_query_set = [i for i in query_set]                    
         
-        print(f'\n\n{query_set}\n\n')
-        
-        print(len(query_set.values()))
-        for i in range(len(query_set.values())):
+        for i in range(len(new_query_set)):      
             
-            del query_set.values()[i]["password"]
-            print(i)
-            """print(f'\n{query_set.values()[i]["password"]}\n')            
-            query_set.values()[i]["password"] = cryptocode.decrypt(pwd_list, "new_key")   
-            print(query_set.values()[i]["password"])"""         
+            new_query_set[i]["password"] = cryptocode.decrypt(new_query_set[i]["password"], "new_key")      
         
-        return query_set     
+        return new_query_set     
     
     def create(self, request, *args, **kwargs):
         
