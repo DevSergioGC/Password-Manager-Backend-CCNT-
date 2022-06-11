@@ -45,6 +45,19 @@ class FolderViewSet(viewsets.ModelViewSet):
         
         return Response(serializer_class.data)
     
+    def destroy(self, request, *args, **kwargs):
+        
+        user = self.request.user
+        default_folder = Folders.objects.filter(user=user, name="Default").first()
+        folder = self.get_object()
+        items = Items.objects.filter(folder=folder.id_folders)
+        items.update(folder=default_folder)
+        folder.delete()
+        
+        serializer_class = FolderSerializer(folder)
+        
+        return Response(serializer_class.data)
+    
 class ItemViewSet(viewsets.ModelViewSet):
     
     serializer_class = ItemSerializer
@@ -52,15 +65,17 @@ class ItemViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     queryset = Items.objects.all()
     
-    def get_queryset(self):
-        
+    def get_queryset(self):           
+            
         queryset = self.queryset               
         query_set = (queryset.filter(user=self.request.user, folder=self.request.query_params.get('folder'))).values()   
-        new_query_set = [i for i in query_set]                    
-        
-        for i in range(len(new_query_set)):      
+        new_query_set = [i for i in query_set]             
             
-            new_query_set[i]["password"] = cryptocode.decrypt(new_query_set[i]["password"], "new_key")      
+        for i in range(len(new_query_set)):      
+                
+            new_query_set[i]["password"] = cryptocode.decrypt(new_query_set[i]["password"], "new_key")  
+            
+            print(f'\n\n{new_query_set[i]["password"]}\n\n')  
         
         return new_query_set     
     
@@ -77,10 +92,63 @@ class ItemViewSet(viewsets.ModelViewSet):
                                        url=item_data['url'], folder=folder, user=self.request.user)
         
         new_item.save()        
-        serializer_class = ItemSerializer(new_item)
+        #serializer_class = ItemSerializer(new_item)
         
-        return Response(serializer_class.data)
-      
+        return Response("Success!")
+    
+    def put(self, request, *args, **kwargs):       
+        
+        id = request.query_params["id"]
+        item = Items.objects.get(id_item=id)
+        
+        data = request.data
+        
+        item.name = data['name']
+        
+        print(f'\n\n{type(item)}\n\n')
+        """item = Items.objects.filter(id_item=item1['id_item'])   
+        item.update(
+            name=item1['name'], 
+            password=cryptocode.encrypt(item1['password']), 
+            description=item1['description'], 
+            url=item1['url'], 
+            folder=item1['folder'], 
+            user=self.request.user
+            )
+        item.save()"""
+        
+        serializer_class = ItemSerializer(item)
+        
+        return Response(serializer_class.data)     
+    
+    def patch(self, request, *args, **kwargs):
+        
+        item = Items.objects.get()
+        data = request.data
+
+        item.name = data.get("name", item.name)
+        item.password = data.get("password", item.password)
+        item.description = data.get("description", item.description)
+        item.url = data.get("url", item.url)
+        item.folder = data.get("folder", item.folder)
+        item.user = self.request.user
+
+        item.save()
+        serializer = ItemSerializer(item)
+
+        return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        
+        item = self.get_object()
+        item_delete = Items.objects.filter(id_item = item["id_item"])
+        print(f'\n\n{item["id_item"]}\n\n')
+        item_delete.delete()
+        
+        #serializer_class = ItemSerializer(item_delete)
+        
+        return Response("Success")
+    
 class UserViewSet(viewsets.ModelViewSet):
     
     queryset = User.objects.all()

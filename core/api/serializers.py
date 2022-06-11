@@ -20,7 +20,9 @@ class ItemSerializer(serializers.ModelSerializer):
         
         extra_kwargs = {
             'user': {'required': False},
-            'folder': {'required': False}
+            'folder': {'required': False},
+            'description': {'required': False},
+            'url': {'required': False},
         }
                
 class UserSerializer(serializers.ModelSerializer):
