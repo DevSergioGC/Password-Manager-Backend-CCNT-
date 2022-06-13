@@ -58,7 +58,7 @@ class FolderViewSet(viewsets.ModelViewSet):
         
         return Response(serializer_class.data)
     
-class ItemViewSet(viewsets.ModelViewSet):
+class ItemViewSet(viewsets.ViewSet):
     
     serializer_class = ItemSerializer
     permission_classes = [IsAuthenticated]
@@ -73,9 +73,7 @@ class ItemViewSet(viewsets.ModelViewSet):
             
         for i in range(len(new_query_set)):      
                 
-            new_query_set[i]["password"] = cryptocode.decrypt(new_query_set[i]["password"], "new_key")  
-            
-            print(f'\n\n{new_query_set[i]["password"]}\n\n')  
+            new_query_set[i]["password"] = cryptocode.decrypt(new_query_set[i]["password"], "new_key")        
         
         return new_query_set     
     
@@ -94,49 +92,7 @@ class ItemViewSet(viewsets.ModelViewSet):
         new_item.save()        
         #serializer_class = ItemSerializer(new_item)
         
-        return Response("Success!")
-    
-    def put(self, request, *args, **kwargs):       
-        
-        id = request.query_params["id"]
-        item = Items.objects.get(id_item=id)
-        
-        data = request.data
-        
-        item.name = data['name']
-        
-        print(f'\n\n{type(item)}\n\n')
-        """item = Items.objects.filter(id_item=item1['id_item'])   
-        item.update(
-            name=item1['name'], 
-            password=cryptocode.encrypt(item1['password']), 
-            description=item1['description'], 
-            url=item1['url'], 
-            folder=item1['folder'], 
-            user=self.request.user
-            )
-        item.save()"""
-        
-        serializer_class = ItemSerializer(item)
-        
-        return Response(serializer_class.data)     
-    
-    def patch(self, request, *args, **kwargs):
-        
-        item = Items.objects.get()
-        data = request.data
-
-        item.name = data.get("name", item.name)
-        item.password = data.get("password", item.password)
-        item.description = data.get("description", item.description)
-        item.url = data.get("url", item.url)
-        item.folder = data.get("folder", item.folder)
-        item.user = self.request.user
-
-        item.save()
-        serializer = ItemSerializer(item)
-
-        return Response(serializer.data)
+        return Response("Success!")   
     
     def destroy(self, request, *args, **kwargs):
         
