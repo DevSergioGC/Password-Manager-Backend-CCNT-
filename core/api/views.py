@@ -2,6 +2,7 @@ from .models import *
 from django.contrib.auth.models import User
 from .serializers import *
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import Token
@@ -58,14 +59,14 @@ class FolderViewSet(viewsets.ModelViewSet):
         
         return Response(serializer_class.data)
     
-class ItemViewSet(viewsets.ModelViewSet):
+class ItemViewSet(APIView):
     
     serializer_class = ItemSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = (TokenAuthentication,)
     queryset = Items.objects.all()
     
-    def get_queryset(self):           
+    def get(self, request, format=None):           
             
         queryset = self.queryset               
         query_set = (queryset.filter(user=self.request.user, folder=self.request.query_params.get('folder'))).values()   
@@ -79,7 +80,7 @@ class ItemViewSet(viewsets.ModelViewSet):
         
         return new_query_set     
     
-    def create(self, request, *args, **kwargs):
+    def post(self, request, format=None):
         
         item_data = request.data                 
         
@@ -92,63 +93,10 @@ class ItemViewSet(viewsets.ModelViewSet):
                                        url=item_data['url'], folder=folder, user=self.request.user)
         
         new_item.save()        
-        #serializer_class = ItemSerializer(new_item)
+        serializer_class = ItemSerializer(new_item)
         
-        return Response("Success!")
-    
-    def put(self, request, *args, **kwargs):       
-        
-        id = request.query_params["id"]
-        item = Items.objects.get(id_item=id)
-        
-        data = request.data
-        
-        item.name = data['name']
-        
-        print(f'\n\n{type(item)}\n\n')
-        """item = Items.objects.filter(id_item=item1['id_item'])   
-        item.update(
-            name=item1['name'], 
-            password=cryptocode.encrypt(item1['password']), 
-            description=item1['description'], 
-            url=item1['url'], 
-            folder=item1['folder'], 
-            user=self.request.user
-            )
-        item.save()"""
-        
-        serializer_class = ItemSerializer(item)
-        
-        return Response(serializer_class.data)     
-    
-    def patch(self, request, *args, **kwargs):
-        
-        item = Items.objects.get()
-        data = request.data
-
-        item.name = data.get("name", item.name)
-        item.password = data.get("password", item.password)
-        item.description = data.get("description", item.description)
-        item.url = data.get("url", item.url)
-        item.folder = data.get("folder", item.folder)
-        item.user = self.request.user
-
-        item.save()
-        serializer = ItemSerializer(item)
-
-        return Response(serializer.data)
-    
-    def destroy(self, request, *args, **kwargs):
-        
-        item = self.get_object()
-        item_delete = Items.objects.filter(id_item = item["id_item"])
-        print(f'\n\n{item["id_item"]}\n\n')
-        item_delete.delete()
-        
-        #serializer_class = ItemSerializer(item_delete)
-        
-        return Response("Success")
-    
+        return Response(serializer_class.data)
+      
 class UserViewSet(viewsets.ModelViewSet):
     
     queryset = User.objects.all()
