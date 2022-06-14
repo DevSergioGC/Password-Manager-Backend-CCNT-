@@ -58,7 +58,7 @@ class FolderViewSet(viewsets.ModelViewSet):
         
         return Response(serializer_class.data)
     
-class ItemViewSet(viewsets.ViewSet):
+class ItemViewSet(viewsets.ModelViewSet):
     
     serializer_class = ItemSerializer
     permission_classes = [IsAuthenticated]
@@ -90,9 +90,20 @@ class ItemViewSet(viewsets.ViewSet):
                                        url=item_data['url'], folder=folder, user=self.request.user)
         
         new_item.save()        
-        #serializer_class = ItemSerializer(new_item)
+        serializer_class = ItemSerializer(new_item)
         
-        return Response("Success!")   
+        return Response(serializer_class.data)   
+    
+    def retrieve(self, request, pk=None):
+        
+        queryset = self.queryset.filter(pk=pk)            
+        
+        print(f'\n\n{queryset}\n\n')
+        print(f'\n\n{type(queryset)}\n\n')
+        
+        serializer_class = ItemSerializer(queryset, many=True)
+        
+        return Response(serializer_class.data)    
     
     def destroy(self, request, *args, **kwargs):
         
@@ -101,9 +112,9 @@ class ItemViewSet(viewsets.ViewSet):
         print(f'\n\n{item["id_item"]}\n\n')
         item_delete.delete()
         
-        #serializer_class = ItemSerializer(item_delete)
+        serializer_class = ItemSerializer(item_delete)
         
-        return Response("Success")
+        return Response(serializer_class.data)
     
 class UserViewSet(viewsets.ModelViewSet):
     
