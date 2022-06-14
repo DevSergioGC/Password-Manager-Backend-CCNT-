@@ -1,65 +1,94 @@
 from .models import *
 from django.contrib.auth.models import User
 from .serializers import *
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import Token
 import cryptocode
+from django.http import Http404
 from rest_framework.response import Response
 
-class FolderViewSet(viewsets.ModelViewSet):
+class FolderList(APIView):
     
-    serializer_class = FolderSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = (TokenAuthentication,)
-    queryset = Folders.objects.all()
     
-    def get_queryset(self):
+    def get(self, request, format=None):        
         
-        queryset = self.queryset
-        query_set = queryset.filter(user=self.request.user)
+        folder = Folders.objects.filter(user=self.request.user.id)
+        serializer = FolderSerializer(folder, many=True)
         
-        return query_set   
+        return Response(serializer.data)
     
-    def create(self, request, *args, **kwargs):
+    def post(self, request, format=None):
         
-        folder = request.data
+        data = request.data        
+        serializer = FolderSerializer(data=data, many=True)
         
-        new_folder = Folders.objects.create(name=folder['name'], user=self.request.user)
-        new_folder.save()
+        if serializer.is_valid():
+            
+            folder = Folders.objects.create(name=data['name'], user=self.request.user)
+            folder.save()   
+            
+            serializer_class = FolderSerializer(folder)  
+            
+            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         
-        serializer_class = FolderSerializer(new_folder)
-        
-        return Response(serializer_class.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FolderDetail(APIView):
     
-    def put(self, request, id, *args, **kwargs):
-        
-        folder = request.data
-        
-        new_folder = Folders.objects.filter(id_folders=id).first()
-        new_folder.update(name=folder.name, user=self.request.user)
-        new_folder.save()
-        
-        serializer_class = FolderSerializer(new_folder)
-        
-        return Response(serializer_class.data)
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (TokenAuthentication,)
     
-    def destroy(self, request, *args, **kwargs):
+    def get_object(self, pk):
         
-        user = self.request.user
-        default_folder = Folders.objects.filter(user=user, name="Default").first()
-        folder = self.get_object()
-        items = Items.objects.filter(folder=folder.id_folders)
-        items.update(folder=default_folder)
+        try:
+            
+            return Folders.objects.get(pk=pk)
+        
+        except Folders.DoesNotExist:
+            
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        
+        folder = self.get_object(pk)
+        serializer = FolderSerializer(folder)
+        
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        
+        folder = self.get_object(pk)
+        serializer = FolderSerializer(folder, data=request.data)
+        
+        if serializer.is_valid():
+            
+            serializer.save()
+            
+            return Response(serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        
+        folder = self.get_object(pk)
         folder.delete()
         
-        serializer_class = FolderSerializer(folder)
-        
-        return Response(serializer_class.data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ItemList(APIView):
     
-class ItemViewSet(APIView):
+    pass
+
+class ItemDetail(APIView):
+    
+    pass
+
+"""class ItemViewSet(APIView):
     
     serializer_class = ItemSerializer
     permission_classes = [IsAuthenticated]
@@ -95,7 +124,7 @@ class ItemViewSet(APIView):
         new_item.save()        
         serializer_class = ItemSerializer(new_item)
         
-        return Response(serializer_class.data)
+        return Response(serializer_class.data)"""
       
 class UserViewSet(viewsets.ModelViewSet):
     
