@@ -1,3 +1,4 @@
+from warnings import catch_warnings
 from .models import *
 from django.contrib.auth.models import User
 from .serializers import *
@@ -82,11 +83,79 @@ class FolderDetail(APIView):
 
 class ItemList(APIView):
     
-    pass
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (TokenAuthentication,)
+    
+    def get(self, request, format=None):        
+        
+        item = (Items.objects.filter(user=self.request.user.id, folder=self.request.query_params.get('folder'))).values()
+        
+        new_query_set = [i for i in item]             
+            
+        for i in range(len(new_query_set)):      
+                
+            new_query_set[i]["password"] = cryptocode.decrypt(new_query_set[i]["password"], "new_key")         
+        
+        return Response(item)
+    
+    def post(self, request, format=None):
+        
+        try:
+            
+            data = request.data   
+            folder = Folders.objects.filter(pk=data['folder']).first() 
+            
+            item = Items.objects.create(name=data['name'], password=cryptocode.encrypt(data['password'], "new_key"), 
+                                            description=data['description'], url=data['url'], folder=folder, user=self.request.user)
+            item.save()   
+                
+            serializer_class = ItemSerializer(item)  
+                
+            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
+        
+        except:
+            
+            return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)        
 
 class ItemDetail(APIView):
     
-    pass
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (TokenAuthentication,)   
+
+    def get(self, request, pk, format=None):
+        
+        try:
+            
+            item = Items.objects.filter(pk=pk).values()
+            new_item = [i for i in item]        
+            new_item[0]['password'] = cryptocode.decrypt(new_item[0]["password"], "new_key")           
+            
+            return Response(new_item)
+        
+        except Items.DoesNotExist:
+            
+            raise Http404
+
+    def put(self, request, pk, format=None):
+        
+        item = Items.objects.get(pk=pk)        
+        
+        serializer = ItemSerializer(item, data=request.data)
+        
+        if serializer.is_valid():
+            
+            serializer.save()
+            Items.objects.filter(pk=pk).update(password=cryptocode.encrypt(serializer.data['password'], "new_key"))            
+            
+            return Response(serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)             
+
+    def delete(self, request, pk, format=None):
+        
+        Items.objects.filter(pk=pk).first().delete()        
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 """class ItemViewSet(APIView):
     
