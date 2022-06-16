@@ -159,29 +159,38 @@ class ItemDetail(APIView):
         Items.objects.filter(pk=pk).first().delete()        
         
         return Response(status=status.HTTP_204_NO_CONTENT)
-      
-class UserViewSet(viewsets.ModelViewSet):
     
-    queryset = User.objects.all()
-    serializer_class = UserSerializer    
+class UserList(APIView):
     
-    def create(self, request, *args, **kwargs):
+    def get(self, request, format=None):
         
-        #? Create new user
-        user_data = request.data
-        new_user = User.objects.create(username=user_data['username'], first_name=user_data['first_name'])
-        new_user.set_password(user_data['password'])
-        new_user.save()
+        user = User.objects.all()
+        serializer = UserSerializer(user, many=True)
         
-        #? Create 'default' folder related to created user
-        new_folder = Folders.objects.create(name='Default', user=new_user)                
-        new_folder.save()
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
         
-        #? User & Folder Serializer
-        serializer_class = FolderSerializer(new_folder)
-        serializer_class2 = UserSerializer(new_user)
+        try:
+            
+            #? Create new user
+            user_data = request.data
+            new_user = User.objects.create(username=user_data['username'], first_name=user_data['first_name'])
+            new_user.set_password(user_data['password'])
+            new_user.save()
+            
+            #? Create 'default' folder related to created user
+            new_folder = Folders.objects.create(name='Default', user=new_user)                
+            new_folder.save()
+            
+            #? User Serializer        
+            serializer_class = UserSerializer(new_user)
+            
+            #? Create a user's Token
+            Token.objects.create(user=new_user)
+            
+            return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         
-        #? Create a user's Token
-        Token.objects.create(user=new_user)
-        
-        return Response(serializer_class2.data)
+        except:
+            
+            return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
