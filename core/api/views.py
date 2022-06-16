@@ -77,6 +77,8 @@ class FolderDetail(APIView):
     def delete(self, request, pk, format=None):
         
         folder = self.get_object(pk)
+        default = Folders.objects.filter(user=self.request.user).first()
+        item = Items.objects.filter(folder=folder).update(folder=default)
         folder.delete()
         
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -144,8 +146,9 @@ class ItemDetail(APIView):
         
         if serializer.is_valid():
             
-            serializer.save()
-            Items.objects.filter(pk=pk).update(password=cryptocode.encrypt(serializer.data['password'], "new_key"))            
+            serializer.save()            
+            Items.objects.filter(pk=pk).update(password=cryptocode.encrypt(request.data['password'], "new_key"))            
+            print("🚀 ~ file: views.py ~ line 151 ~ request.data['password']", request.data['password'])
             
             return Response(serializer.data)
         
@@ -156,44 +159,6 @@ class ItemDetail(APIView):
         Items.objects.filter(pk=pk).first().delete()        
         
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-"""class ItemViewSet(APIView):
-    
-    serializer_class = ItemSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = (TokenAuthentication,)
-    queryset = Items.objects.all()
-    
-    def get(self, request, format=None):           
-            
-        queryset = self.queryset               
-        query_set = (queryset.filter(user=self.request.user, folder=self.request.query_params.get('folder'))).values()   
-        new_query_set = [i for i in query_set]             
-            
-        for i in range(len(new_query_set)):      
-                
-            new_query_set[i]["password"] = cryptocode.decrypt(new_query_set[i]["password"], "new_key")  
-            
-            print(f'\n\n{new_query_set[i]["password"]}\n\n')  
-        
-        return new_query_set     
-    
-    def post(self, request, format=None):
-        
-        item_data = request.data                 
-        
-        pwd = item_data['password']        
-        new_pwd = cryptocode.encrypt(pwd, "new_key")
-        
-        folder = Folders.objects.filter(id_folders=item_data['folder']).first()               
-        
-        new_item=  Items.objects.create(name=item_data['name'], password=new_pwd, description=item_data['description'],
-                                       url=item_data['url'], folder=folder, user=self.request.user)
-        
-        new_item.save()        
-        serializer_class = ItemSerializer(new_item)
-        
-        return Response(serializer_class.data)"""
       
 class UserViewSet(viewsets.ModelViewSet):
     
