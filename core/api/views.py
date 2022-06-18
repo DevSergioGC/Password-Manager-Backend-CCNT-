@@ -25,19 +25,20 @@ class FolderList(APIView):
     
     def post(self, request, format=None):
         
-        data = request.data        
-        serializer = FolderSerializer(data=data, many=True)
-        
-        if serializer.is_valid():
+        try:
+            
+            data = request.data                
             
             folder = Folders.objects.create(name=data['name'], user=self.request.user)
             folder.save()   
-            
-            serializer_class = FolderSerializer(folder)  
-            
+                
+            serializer_class = ItemSerializer(folder)  
+                
             return Response(serializer_class.data, status=status.HTTP_201_CREATED)
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            
+            return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)   
 
 class FolderDetail(APIView):
     
