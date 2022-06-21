@@ -139,21 +139,37 @@ class ItemDetail(APIView):
             
             raise Http404
 
-    def put(self, request, pk, format=None):
+    def put(self, request, pk, format=None):        
+           
+        data = request.data     
         
-        item = Items.objects.get(pk=pk)        
-        
-        serializer = ItemSerializer(item, data=request.data)
-        
-        if serializer.is_valid():
+        try:
             
-            serializer.save()            
-            Items.objects.filter(pk=pk).update(password=cryptocode.encrypt(request.data['password'], "new_key"))            
-            print("🚀 ~ file: views.py ~ line 151 ~ request.data['password']", request.data['password'])
+            if data['name'] != "":
+                
+                Items.objects.filter(pk=pk).update(name=data['name'])
             
-            return Response(serializer.data)
+            if data['password'] != "":
+                
+                Items.objects.filter(pk=pk).update(password=cryptocode.encrypt(data['password'], "new_key"))
+            
+            if data['description'] != "":
+                
+                Items.objects.filter(pk=pk).update(description=data['description'])
+            
+            if data['url'] != "":
+                
+                Items.objects.filter(pk=pk).update(url=data['url'])
+            
+            if data['folder'] != "":
+                
+                Items.objects.filter(pk=pk).update(folder=data['folder'])        
+                
+            return Response("Success")
         
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)             
+        except Items.DoesNotExist:
+            
+            return Response("Error")                 
 
     def delete(self, request, pk, format=None):
         
